@@ -8,8 +8,8 @@ using namespace SDKTemplate;
 
 Platform::Array<Scenario>^ MainPage::scenariosInner = ref new Platform::Array<Scenario>
 {
-    { "Pick a single photo",   "SDKTemplate.Scenario1" },
-    { "Pick multiple files",   "SDKTemplate.Scenario2" },
-    { "Pick a folder",         "SDKTemplate.Scenario3" },
-    { "Save a file",           "SDKTemplate.Scenario4" },
+    { "Depth Camera",   "SDKTemplate.Scenario1" },
+    { "Device Camera",   "SDKTemplate.Scenario2" },
+    { "Head Scanner",         "SDKTemplate.Scenario3" },
+    { "Head Processor",           "SDKTemplate.Scenario4" },
 };

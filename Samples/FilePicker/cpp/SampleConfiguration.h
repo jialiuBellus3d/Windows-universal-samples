@@ -14,7 +14,7 @@ namespace SDKTemplate
         {
             Platform::String^ get()
             {
-                return "File picker C++ sample";
+                return "Bellus3D Test App";
             }
         }
 
