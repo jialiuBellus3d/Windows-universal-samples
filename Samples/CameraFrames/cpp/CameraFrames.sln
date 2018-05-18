@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraFrames", "CameraFrames.vcxproj", "{FECCF099-0EA4-5F8D-877B-FEFDB115ED04}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCVBridge", "..\shared\OpenCVBridge\OpenCVBridge.vcxproj", "{8D461DF8-5EA6-5315-A14A-2FC949C1E392}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -33,8 +35,23 @@ Global
 		{FECCF099-0EA4-5F8D-877B-FEFDB115ED04}.Release|x86.ActiveCfg = Release|Win32
 		{FECCF099-0EA4-5F8D-877B-FEFDB115ED04}.Release|x86.Build.0 = Release|Win32
 		{FECCF099-0EA4-5F8D-877B-FEFDB115ED04}.Release|x86.Deploy.0 = Release|Win32
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|ARM.ActiveCfg = Debug|ARM
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|ARM.Build.0 = Debug|ARM
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|x64.ActiveCfg = Debug|x64
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|x64.Build.0 = Debug|x64
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|x86.ActiveCfg = Debug|Win32
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Debug|x86.Build.0 = Debug|Win32
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|ARM.ActiveCfg = Release|ARM
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|ARM.Build.0 = Release|ARM
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|x64.ActiveCfg = Release|x64
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|x64.Build.0 = Release|x64
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|x86.ActiveCfg = Release|Win32
+		{8D461DF8-5EA6-5315-A14A-2FC949C1E392}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B6AD151A-B5B5-4375-8E8A-0539849C7800}
 	EndGlobalSection
 EndGlobal
