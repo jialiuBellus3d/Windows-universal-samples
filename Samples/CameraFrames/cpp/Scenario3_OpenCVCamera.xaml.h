@@ -14,6 +14,7 @@
 #include "Scenario3_OpenCVCamera.g.h"
 #include "MainPage.xaml.h"
 #include "FrameRenderer.h"
+#include "SimpleLogger.h"
 #include "OpenCVHelper.h"
 
 using namespace Windows::UI::Xaml;
@@ -62,5 +63,8 @@ namespace SDKTemplate
 			MotionDetector
 		};
 		OperationType m_currentOperation;
+
+		SimpleLogger^ m_logger;
+
 	};
 } // SDKTemplate

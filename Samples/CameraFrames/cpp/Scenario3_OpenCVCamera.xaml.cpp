@@ -42,7 +42,7 @@ Scenario3_OpenCVCamera::Scenario3_OpenCVCamera()
 	m_helper = ref new OpenCVHelper();
 
 	m_FPSTimer = ref new DispatcherTimer();
-
+	m_logger = ref new SimpleLogger(outputTextBlock);
 }
 
 void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
@@ -57,31 +57,34 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 	OperationComboBox->ItemsSource = formats;
 	OperationComboBox->SelectedIndex = 0;
 	m_currentOperation = OperationType::Blur;
+	CleanupMediaCaptureAsync().then([this]()
+	{
+		return create_task(MediaFrameSourceGroup::FindAllAsync());
+	}, task_continuation_context::get_current_winrt_context())
+		.then([this](IVectorView<MediaFrameSourceGroup^>^ allGroups)
+	{
+		if (allGroups->Size == 0)
+		{
+			m_logger->Log("No source groups found.");
+			return;
+		}
 
-	//return CleanupMediaCaptureAsync()
-	//	.then([this]()
-	//{
-	//	return create_task(MediaFrameSourceGroup::FindAllAsync());
-	//}, task_continuation_context::get_current_winrt_context())
-	//	.then([this](IVectorView<MediaFrameSourceGroup^>^ allGroups)
-	//{}
+		// Pick next group in the array after each time the Next button is clicked.
+		int m_selectedSourceGroupIndex = 0;
+		m_selectedSourceGroupIndex = (m_selectedSourceGroupIndex + 1) % allGroups->Size;
+		MediaFrameSourceGroup^ selectedGroup = allGroups->GetAt(m_selectedSourceGroupIndex);
+
+		m_logger->Log("Found " + allGroups->Size.ToString() + " groups and " +
+			"selecting index [" + m_selectedSourceGroupIndex.ToString() + "] : " +
+			selectedGroup->DisplayName);
+		//InitializeMediaCaptureAsync(selectedGroup);
+	}, task_continuation_context::get_current_winrt_context());
 	//IVectorView<MediaFrameSourceGroup^>^ allGroups = MediaFrameSourceGroup::FindAllAsync();
-
-	//if (allGroups->Size == 0)
-	//{
-	//	return;
-	//}
-
-	//// Pick next group in the array after each time the Next button is clicked.
-	//int m_selectedSourceGroupIndex = (m_selectedSourceGroupIndex + 1) % allGroups->Size;
-	//MediaFrameSourceGroup^ selectedGroup = allGroups->GetAt(m_selectedSourceGroupIndex);
-
-	//InitializeMediaCaptureAsync(selectedGroup);
 }
 
 void Scenario3_OpenCVCamera::OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
 {
-	//CleanupMediaCaptureAsync();
+	CleanupMediaCaptureAsync();
 }
 
 task<bool> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup)
