@@ -13,6 +13,11 @@
 #include "Scenario3_OpenCVCamera.xaml.h"
 #include "FrameRenderer.h"
 
+using namespace SDKTemplate;
+
+using namespace concurrency;
+
+
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
@@ -25,8 +30,6 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
 
-using namespace SDKTemplate;
-using namespace concurrency;
 using namespace Platform;
 using namespace Platform::Collections;
 
@@ -55,7 +58,13 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 	OperationComboBox->SelectedIndex = 0;
 	m_currentOperation = OperationType::Blur;
 
-	//// Find the sources 
+	//return CleanupMediaCaptureAsync()
+	//	.then([this]()
+	//{
+	//	return create_task(MediaFrameSourceGroup::FindAllAsync());
+	//}, task_continuation_context::get_current_winrt_context())
+	//	.then([this](IVectorView<MediaFrameSourceGroup^>^ allGroups)
+	//{}
 	//IVectorView<MediaFrameSourceGroup^>^ allGroups = MediaFrameSourceGroup::FindAllAsync();
 
 	//if (allGroups->Size == 0)
@@ -75,43 +84,43 @@ void Scenario3_OpenCVCamera::OnNavigatedFrom(Windows::UI::Xaml::Navigation::Navi
 	//CleanupMediaCaptureAsync();
 }
 
-//task<void> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup)
-//{
-//	if (m_mediaCapture != nullptr)
-//	{
-//		return;
-//	}
-//
-//	m_mediaCapture = ref new MediaCapture();
-//	auto settings = ref new MediaCaptureInitializationSettings();
-//
-//	// Select the source we will be reading from.
-//	settings->SourceGroup = sourceGroup;
-//
-//	// This media capture has exclusive control of the source.
-//	settings->SharingMode = MediaCaptureSharingMode::ExclusiveControl;
-//
-//	// Set to CPU to ensure frames always contain CPU SoftwareBitmap images,
-//	// instead of preferring GPU D3DSurface images.
-//	settings->MemoryPreference = MediaCaptureMemoryPreference::Cpu;
-//
-//	// Capture only video. Audio device will not be initialized.
-//	settings->StreamingCaptureMode = StreamingCaptureMode::Video;
-//
-//	create_task(m_mediaCapture->InitializeAsync(settings));
-//}
+task<bool> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup)
+{
+	if (m_mediaCapture != nullptr)
+	{
+		return task_from_result(true);
+	}
 
-//task<void> Scenario3_OpenCVCamera::CleanupMediaCaptureAsync()
-//{
-//	task<void> cleanupTask = task_from_result();
-//
-//	if (m_mediaCapture != nullptr)
-//	{
-//		cleanupTask = cleanupTask && create_task(m_reader->StopAsync());
-//		m_mediaCapture = nullptr;
-//	}
-//	return cleanupTask;
-//}
+	m_mediaCapture = ref new MediaCapture();
+	auto settings = ref new MediaCaptureInitializationSettings();
+
+	// Select the source we will be reading from.
+	settings->SourceGroup = sourceGroup;
+
+	// This media capture has exclusive control of the source.
+	settings->SharingMode = MediaCaptureSharingMode::ExclusiveControl;
+
+	// Set to CPU to ensure frames always contain CPU SoftwareBitmap images,
+	// instead of preferring GPU D3DSurface images.
+	settings->MemoryPreference = MediaCaptureMemoryPreference::Cpu;
+
+	// Capture only video. Audio device will not be initialized.
+	settings->StreamingCaptureMode = StreamingCaptureMode::Video;
+
+	create_task(m_mediaCapture->InitializeAsync(settings));
+}
+
+task<void> Scenario3_OpenCVCamera::CleanupMediaCaptureAsync()
+{
+	task<void> cleanupTask = task_from_result();
+
+	if (m_mediaCapture != nullptr)
+	{
+		cleanupTask = cleanupTask && create_task(m_reader->StopAsync());
+		m_mediaCapture = nullptr;
+	}
+	return cleanupTask;
+}
 
 void Scenario3_OpenCVCamera::OperationComboBox_SelectionChanged(Object^ sender, RoutedEventArgs^ e)
 {
