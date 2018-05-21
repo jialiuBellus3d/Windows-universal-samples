@@ -94,7 +94,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);..\..\..\SharedContent\cpp</IncludePath>
+    <IncludePath>..\cpp\Generated Files;..\shared\OpenCVBridge;$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);..\..\..\SharedContent\cpp</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
@@ -131,11 +131,15 @@
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>C:\GitHub\Windows-universal-samples\Samples\CameraFrames\cpp\Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FrameRenderer.h" />
     <ClInclude Include="FrameSourceViewModels.h" />
+    <ClInclude Include="Scenario3_OpenCVCamera.xaml.h">
+      <DependentUpon>Scenario3_OpenCVCamera.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="SimpleLogger.h" />
     <ClInclude Include="LookupTable.h" />
     <ClInclude Include="pch.h" />
@@ -165,6 +169,7 @@
     <Page Include="..\..\..\SharedContent\xaml\Styles.xaml">
       <Link>Styles\Styles.xaml</Link>
     </Page>
+    <Page Include="Scenario3_OpenCVCamera.xaml" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -195,6 +200,9 @@
     <ClCompile Include="Scenario1_DisplayDepthColorIR.xaml.cpp">
       <DependentUpon>..\shared\Scenario1_DisplayDepthColorIR.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="Scenario3_OpenCVCamera.xaml.cpp">
+      <DependentUpon>Scenario3_OpenCVCamera.xaml</DependentUpon>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\SharedContent\media\microsoft-sdk.png">
@@ -221,6 +229,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\shared\OpenCVBridge\OpenCVBridge.vcxproj">
+      <Project>{8d461df8-5ea6-5315-a14a-2fc949c1e392}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

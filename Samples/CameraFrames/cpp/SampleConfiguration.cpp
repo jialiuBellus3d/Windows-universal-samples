@@ -18,5 +18,6 @@ using namespace SDKTemplate;
 Platform::Array<Scenario>^ MainPage::scenariosInner = ref new Platform::Array<Scenario>
 {
     { "Shared mode access to color, depth and infrared frame sources", "SDKTemplate.Scenario1_DisplayDepthColorIR" },
-    { "Find and display camera sources", "SDKTemplate.Scenario2_FindAvailableSourceGroups" }
+    { "Find and display camera sources", "SDKTemplate.Scenario2_FindAvailableSourceGroups" },
+	{ "OpenCV Camera", "SDKTemplate.Scenario3_OpenCVCamera"}
 };

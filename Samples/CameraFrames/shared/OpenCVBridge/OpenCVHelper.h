@@ -9,6 +9,7 @@
 //
 //*********************************************************
 // OpenCVHelper.h
+#ifndef OPENCVHELPER_H
 
 #pragma once
 #include <opencv2\core\core.hpp>
@@ -50,3 +51,5 @@ namespace OpenCVBridge
         bool TryConvert(Windows::Graphics::Imaging::SoftwareBitmap^ from, cv::Mat& convertedMat);
     };
 }
+
+#endif
