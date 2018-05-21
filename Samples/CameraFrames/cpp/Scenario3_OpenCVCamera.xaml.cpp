@@ -29,6 +29,7 @@ using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Media::Capture;
 using namespace Windows::Media::Capture::Frames;
+using namespace Windows::Media::MediaProperties;
 
 using namespace Platform;
 using namespace Platform::Collections;
@@ -78,8 +79,45 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 			"selecting index [" + m_selectedSourceGroupIndex.ToString() + "] : " +
 			selectedGroup->DisplayName);
 		//InitializeMediaCaptureAsync(selectedGroup);
+		// Somehow I can't get it working in side the function above
+		if (m_mediaCapture != nullptr)
+		{
+			m_logger->Log("m_mediaCapture not null, last capture not finish yet");
+			return;// CleanupMediaCaptureAsync();
+		}
+		else {
+			m_logger->Log("m_mediaCapture is null, start new capture");
+		}
+		m_mediaCapture = ref new MediaCapture();
+		auto settings = ref new MediaCaptureInitializationSettings();
+
+		// Select the source we will be reading from.
+		settings->SourceGroup = selectedGroup;
+
+		// This media capture has exclusive control of the source.
+		settings->SharingMode = MediaCaptureSharingMode::ExclusiveControl;
+
+		// Set to CPU to ensure frames always contain CPU SoftwareBitmap images,
+		// instead of preferring GPU D3DSurface images.
+		settings->MemoryPreference = MediaCaptureMemoryPreference::Cpu;
+
+		// Capture only video. Audio device will not be initialized.
+		settings->StreamingCaptureMode = StreamingCaptureMode::Video;
+
+		m_logger->Log("before InitializeAsync");
+		create_task(m_mediaCapture->InitializeAsync(settings));
+
+
+
+		//// Create the frame reader
+		//MediaFrameSource frameSource = m_mediaCapture->FrameSources[selectedGroup->Id];
+		//BitmapSize^ size = new BitmapSize(IMAGE_ROWS, IMAGE_COLS);
+		//m_reader = m_mediaCapture.CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes::Bgra8, size);
+		//m_reader.FrameArrived += ColorFrameReader_FrameArrivedAsync;
+		//m_reader.StartAsync();
+
+
 	}, task_continuation_context::get_current_winrt_context());
-	//IVectorView<MediaFrameSourceGroup^>^ allGroups = MediaFrameSourceGroup::FindAllAsync();
 }
 
 void Scenario3_OpenCVCamera::OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
@@ -87,11 +125,15 @@ void Scenario3_OpenCVCamera::OnNavigatedFrom(Windows::UI::Xaml::Navigation::Navi
 	CleanupMediaCaptureAsync();
 }
 
-task<bool> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup)
+task<void> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup)
 {
 	if (m_mediaCapture != nullptr)
 	{
-		return task_from_result(true);
+		m_logger->Log("m_mediaCapture not null, last capture not finish yet");
+		return CleanupMediaCaptureAsync();
+	}
+	else {
+		m_logger->Log("m_mediaCapture is null, start new capture");
 	}
 
 	m_mediaCapture = ref new MediaCapture();
@@ -110,6 +152,7 @@ task<bool> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceG
 	// Capture only video. Audio device will not be initialized.
 	settings->StreamingCaptureMode = StreamingCaptureMode::Video;
 
+	m_logger->Log("before InitializeAsync");
 	create_task(m_mediaCapture->InitializeAsync(settings));
 }
 

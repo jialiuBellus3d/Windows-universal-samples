@@ -36,7 +36,7 @@ namespace SDKTemplate
 
 		virtual void OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 	private:
-		concurrency::task<bool> InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup);
+		concurrency::task<void> InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup);
 		concurrency::task<void> CleanupMediaCaptureAsync();
 
 	private:
