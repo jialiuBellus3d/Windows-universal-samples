@@ -389,3 +389,32 @@ SoftwareBitmap^ FrameRenderer::TransformBitmap(SoftwareBitmap^ inputBitmap, Tran
 
     return outputBitmap;
 }
+
+void FrameRenderer::BufferBitmapForRendering(SoftwareBitmap^ softwareBitmap)
+{
+	if (softwareBitmap != nullptr)
+	{
+		// Swap the processed frame to _backBuffer, and trigger the UI thread to render it.
+		softwareBitmap = InterlockedExchangeRefPointer(&m_backBuffer, softwareBitmap);
+
+		// UI thread always resets m_backBuffer before using it. Unused bitmap should be disposed.
+		delete softwareBitmap;
+
+		// Changes to the XAML ImageElement must happen in the UI thread, via the CoreDispatcher.
+		m_imageElement->Dispatcher->RunAsync(Windows::UI::Core::CoreDispatcherPriority::Normal,
+			ref new Windows::UI::Core::DispatchedHandler([this]()
+		{
+			// Don't let two copies of this task run at the same time.
+			if (m_taskRunning)
+			{
+				return;
+			}
+
+			m_taskRunning = true;
+
+			// Keep draining frames from the backbuffer until the backbuffer is empty.
+			DrainBackBufferAsync();
+		}));
+	}
+}
+

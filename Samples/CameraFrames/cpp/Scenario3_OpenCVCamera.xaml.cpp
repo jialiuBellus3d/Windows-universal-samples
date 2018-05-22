@@ -77,7 +77,7 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 
 		m_logger->Log("Found " + allGroups->Size.ToString() + " groups and " +
 			"selecting index [" + m_selectedSourceGroupIndex.ToString() + "] : " +
-			selectedGroup->DisplayName);
+			selectedGroup->DisplayName + "   " + selectedGroup->Id);
 		//InitializeMediaCaptureAsync(selectedGroup);
 		// Somehow I can't get it working in side the function above
 		if (m_mediaCapture != nullptr)
@@ -107,14 +107,14 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 		m_logger->Log("before InitializeAsync");
 		create_task(m_mediaCapture->InitializeAsync(settings));
 
-
-
-		//// Create the frame reader
-		//MediaFrameSource frameSource = m_mediaCapture->FrameSources[selectedGroup->Id];
-		//BitmapSize^ size = new BitmapSize(IMAGE_ROWS, IMAGE_COLS);
-		//m_reader = m_mediaCapture.CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes::Bgra8, size);
-		//m_reader.FrameArrived += ColorFrameReader_FrameArrivedAsync;
-		//m_reader.StartAsync();
+		// Create the frame reader
+		/*MediaFrameSource frameSource = m_mediaCapture->FrameSources[selectedGroup->SourceInfo->Id];*/
+		//BitmapSize bitmapSize = BitmapSize();
+		//bitmapSize.Height = IMAGE_ROWS;
+		//bitmapSize.Width = IMAGE_COLS;
+		//m_reader = m_mediaCapture->CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes::Bgra8, bitmapSize);
+		//m_reader->FrameArrived += ColorFrameReader_FrameArrivedAsync;
+		//m_reader->StartAsync();
 
 
 	}, task_continuation_context::get_current_winrt_context());
@@ -166,6 +166,53 @@ task<void> Scenario3_OpenCVCamera::CleanupMediaCaptureAsync()
 		m_mediaCapture = nullptr;
 	}
 	return cleanupTask;
+}
+
+task<void> Scenario3_OpenCVCamera::ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args)
+{
+	auto frame = sender->TryAcquireLatestFrame();
+	if (frame != nullptr)
+	{
+		SoftwareBitmap^ originalBitmap = nullptr;
+		auto inputBitmap = frame->VideoMediaFrame;
+		if (inputBitmap != nullptr)
+		{
+			// The XAML Image control can only display images in BRGA8 format with premultiplied or no alpha
+			// The frame reader as configured in this sample gives BGRA8 with straight alpha, so need to convert it
+			//originalBitmap = SoftwareBitmap::Convert(inputBitmap, BitmapPixelFormat::Bgra8, BitmapAlphaMode::Premultiplied);
+
+			SoftwareBitmap^ outputBitmap = ref new SoftwareBitmap(BitmapPixelFormat::Bgra8, originalBitmap->PixelWidth, 
+				originalBitmap->PixelHeight, BitmapAlphaMode::Premultiplied);
+
+	//		// Operate on the image in the manner chosen by the user.
+			if (m_currentOperation == OperationType::Blur)
+			{
+				m_helper->Blur(originalBitmap, outputBitmap);
+			}
+			else if (m_currentOperation == OperationType::HoughLines)
+			{
+				m_helper->HoughLines(originalBitmap, outputBitmap);
+			}
+			else if (m_currentOperation == OperationType::Contours)
+			{
+				m_helper->Contours(originalBitmap, outputBitmap);
+			}
+			else if (m_currentOperation == OperationType::Histogram)
+			{
+				m_helper->Histogram(originalBitmap, outputBitmap);
+			}
+			else if (m_currentOperation == OperationType::MotionDetector)
+			{
+				m_helper->MotionDetector(originalBitmap, outputBitmap);
+			}
+
+			// Display both the original bitmap and the processed bitmap.
+			m_previewRenderer->BufferBitmapForRendering(originalBitmap);
+			m_outputRenderer->BufferBitmapForRendering(outputBitmap);
+		}
+
+	//	Interlocked.Increment(ref _frameCount);
+	}
 }
 
 void Scenario3_OpenCVCamera::OperationComboBox_SelectionChanged(Object^ sender, RoutedEventArgs^ e)

@@ -38,6 +38,7 @@ namespace SDKTemplate
 	private:
 		concurrency::task<void> InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup);
 		concurrency::task<void> CleanupMediaCaptureAsync();
+		concurrency::task<void> ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args);
 
 	private:
 		MainPage ^ rootPage = MainPage::Current;
@@ -49,8 +50,8 @@ namespace SDKTemplate
 
 		//int m_frameCount = 0;
 
-		//const int IMAGE_ROWS = 480;
-		//const int IMAGE_COLS = 640;
+		const int IMAGE_ROWS = 480;
+		const int IMAGE_COLS = 640;
 
 		OpenCVHelper^ m_helper;
 		DispatcherTimer^ m_FPSTimer;

@@ -38,6 +38,11 @@ namespace SDKTemplate
             Windows::Media::Capture::Frames::MediaFrameSourceKind kind,
             Windows::Media::Capture::Frames::MediaFrameFormat^ format);
 
+		/// <summary>
+		/// Buffer processed bitmap and render on UI.
+		/// </summary>
+		void BufferBitmapForRendering(Windows::Graphics::Imaging::SoftwareBitmap^ softwareBitmap);
+
     private: // Private static methods.
         /// <summary>
         /// Converts the input frame to BGRA8 premultiplied alpha format and returns the result.
