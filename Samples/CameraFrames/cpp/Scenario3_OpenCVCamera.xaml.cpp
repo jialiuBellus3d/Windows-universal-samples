@@ -78,45 +78,45 @@ void Scenario3_OpenCVCamera::OnNavigatedTo(Windows::UI::Xaml::Navigation::Naviga
 		m_logger->Log("Found " + allGroups->Size.ToString() + " groups and " +
 			"selecting index [" + m_selectedSourceGroupIndex.ToString() + "] : " +
 			selectedGroup->DisplayName + "   " + selectedGroup->Id);
-		//InitializeMediaCaptureAsync(selectedGroup);
-		// Somehow I can't get it working in side the function above
-		if (m_mediaCapture != nullptr)
-		{
-			m_logger->Log("m_mediaCapture not null, last capture not finish yet");
-			return;// CleanupMediaCaptureAsync();
-		}
-		else {
-			m_logger->Log("m_mediaCapture is null, start new capture");
-		}
-		m_mediaCapture = ref new MediaCapture();
-		auto settings = ref new MediaCaptureInitializationSettings();
+		
+		InitializeMediaCaptureAsync(selectedGroup).then([this]() {
+			m_logger->Log("InitializeMediaCaptureAsync done");
+			// Create the frame reader
+			MediaFrameSource^ frameSource;
+			IMapView<String^, MediaFrameSource^>^ frameSources = nullptr;
+			frameSources = m_mediaCapture->FrameSources;
+			if (frameSources == nullptr) {
+				m_logger->Log("kvp is null");
+			}
+			else {
+				m_logger->Log(frameSources->Size.ToString());
+				for (auto kvp : frameSources)
+				{
+					if (kvp != nullptr) {
+						m_logger->Log(kvp->Key);
+						frameSource = kvp->Value;
+					}
+				}
+			}
 
-		// Select the source we will be reading from.
-		settings->SourceGroup = selectedGroup;
+			BitmapSize bitmapSize = BitmapSize();
+			bitmapSize.Height = IMAGE_ROWS;
+			bitmapSize.Width = IMAGE_COLS;
 
-		// This media capture has exclusive control of the source.
-		settings->SharingMode = MediaCaptureSharingMode::ExclusiveControl;
+			m_logger->Log("before CreateFrameReaderAsync");
 
-		// Set to CPU to ensure frames always contain CPU SoftwareBitmap images,
-		// instead of preferring GPU D3DSurface images.
-		settings->MemoryPreference = MediaCaptureMemoryPreference::Cpu;
-
-		// Capture only video. Audio device will not be initialized.
-		settings->StreamingCaptureMode = StreamingCaptureMode::Video;
-
-		m_logger->Log("before InitializeAsync");
-		create_task(m_mediaCapture->InitializeAsync(settings));
-
-		// Create the frame reader
-		/*MediaFrameSource frameSource = m_mediaCapture->FrameSources[selectedGroup->SourceInfo->Id];*/
-		//BitmapSize bitmapSize = BitmapSize();
-		//bitmapSize.Height = IMAGE_ROWS;
-		//bitmapSize.Width = IMAGE_COLS;
-		//m_reader = m_mediaCapture->CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes::Bgra8, bitmapSize);
-		//m_reader->FrameArrived += ColorFrameReader_FrameArrivedAsync;
-		//m_reader->StartAsync();
-
-
+			create_task(m_mediaCapture->CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes::Bgra8, bitmapSize))
+				.then([this](MediaFrameReader^ mediaFrameReader)
+			{
+				m_reader = mediaFrameReader;
+				m_logger->Log("CreateFrameReaderAsync done");
+				//m_reader->FrameArrived += ColorFrameReader_FrameArrivedAsync;
+				/*create_task(ColorFrameReader_FrameArrivedAsync(m_reader))
+					.then([this]() {
+					m_reader->StartAsync();
+				}, task_continuation_context::get_current_winrt_context());*/
+			}, task_continuation_context::get_current_winrt_context());
+		}, task_continuation_context::get_current_winrt_context());
 	}, task_continuation_context::get_current_winrt_context());
 }
 
@@ -153,7 +153,7 @@ task<void> Scenario3_OpenCVCamera::InitializeMediaCaptureAsync(MediaFrameSourceG
 	settings->StreamingCaptureMode = StreamingCaptureMode::Video;
 
 	m_logger->Log("before InitializeAsync");
-	create_task(m_mediaCapture->InitializeAsync(settings));
+	return create_task(m_mediaCapture->InitializeAsync(settings));
 }
 
 task<void> Scenario3_OpenCVCamera::CleanupMediaCaptureAsync()
@@ -168,7 +168,7 @@ task<void> Scenario3_OpenCVCamera::CleanupMediaCaptureAsync()
 	return cleanupTask;
 }
 
-task<void> Scenario3_OpenCVCamera::ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args)
+task<void> Scenario3_OpenCVCamera::ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender)
 {
 	auto frame = sender->TryAcquireLatestFrame();
 	if (frame != nullptr)

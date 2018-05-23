@@ -38,10 +38,10 @@ namespace SDKTemplate
 	private:
 		concurrency::task<void> InitializeMediaCaptureAsync(MediaFrameSourceGroup^ sourceGroup);
 		concurrency::task<void> CleanupMediaCaptureAsync();
-		concurrency::task<void> ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender, MediaFrameArrivedEventArgs^ args);
+		concurrency::task<void> ColorFrameReader_FrameArrivedAsync(MediaFrameReader^ sender);
 
 	private:
-		MainPage ^ rootPage = MainPage::Current;
+		MainPage^ rootPage = MainPage::Current;
 
 		MediaCapture^ m_mediaCapture;
 		MediaFrameReader^ m_reader;
